@@ -1,0 +1,24 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bookmark
+
+# Test binaries and coverage
+*.test
+*.out
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency directories (optional; keep commented if vendoring)
+# vendor/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
