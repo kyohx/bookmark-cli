@@ -20,21 +20,25 @@
 
 デフォルト設定ファイル:
 
-- macOS: `~/Library/Application Support/bookmark-cli/config.yaml`
-- Linux: `~/.config/bookmark-cli/config.yaml`
-- Windows: `%AppData%/bookmark-cli/config.yaml`
+- macOS: `~/Library/Application Support/bookmark-cli/config.toml`
+- Linux: `~/.config/bookmark-cli/config.toml`
+- Windows: `%AppData%/bookmark-cli/config.toml`
 
 例:
 
-```yaml
-base_url: "http://localhost:8000"
-timeout_seconds: 10
-scopes:
-  - read
-  - write
+```toml
+[profile.default]
+base_url = "http://localhost:8000"
+timeout_seconds = 10
+scopes = ["read", "write"]
+
+[profile.work]
+base_url = "https://bookmark.example.com"
+timeout_seconds = 15
+scopes = ["read"]
 ```
 
-`--base-url`, `--timeout`, `--config` で上書きできます。
+`[profile.<プロファイル名>]` ごとにデフォルト設定を持てます。`--profile`, `--base-url`, `--timeout`, `--config` で上書きできます。セッションはプロファイル単位で OS キーチェーンに保存されます。
 
 ## 使用方法
 
@@ -55,8 +59,11 @@ go run ./cmd/bookmark login --username testuser
 # 標準入力からパスワードを渡す
 printf '%s\n' 'your-password' | go run ./cmd/bookmark login --username testuser --password-stdin
 
-# スコープ指定（未指定時は config.yaml の scopes を利用）
+# スコープ指定（未指定時は選択中プロファイルの scopes を利用）
 go run ./cmd/bookmark login --username testuser --scope read --scope write
+
+# プロファイル指定
+go run ./cmd/bookmark --profile work login --username testuser
 
 go run ./cmd/bookmark logout
 ```

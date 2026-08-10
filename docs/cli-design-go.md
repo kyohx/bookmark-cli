@@ -16,7 +16,7 @@
 - HTTP: `net/http` + `context`
 - Tokenモデル: `golang.org/x/oauth2` の `oauth2.Token` を流用（`/token` 応答をマッピング）
 - 秘密情報保管: `github.com/zalando/go-keyring`
-- 設定ファイル（非機密）: `~/.config/bookmark-cli/config.yaml`
+- 設定ファイル（非機密）: `~/.config/bookmark-cli/config.toml`
 
 ## 4. ディレクトリ構成
 ```text
@@ -61,13 +61,13 @@ bookmark-cli/
 
 ## 6. セッション保存ポリシー
 - 保存先は **OSキーチェーンのみ**（Keychain / Credential Manager / Secret Service）。
-- `config.yaml` は非機密のみ:
-  - `base_url`
-  - `client_id`（必要な場合）
-  - `scopes`（必要な場合）
+- `config.toml` は非機密のみ:
+  - `[profile.<name>].base_url`
+  - `[profile.<name>].client_id`（必要な場合）
+  - `[profile.<name>].scopes`（必要な場合）
 - 保存キー名（例）:
   - service: `bookmark-cli`
-  - user: `<api_base_url>#<subject or user_id>`
+  - user: `session:<profile_name>`
 
 ## 7. APIクライアント設計
 ### 7.1 振る舞い
@@ -108,7 +108,9 @@ type APIClient interface {
 - `bookmark login --password-stdin`  
   CIやパイプ入力用（履歴に残る引数でのパスワード指定は禁止）。
 - `bookmark login --scope read --scope write`  
-  必要最小スコープでのトークン要求。未指定時は`config.yaml`の`scopes`を使用。
+  必要最小スコープでのトークン要求。未指定時は選択中プロファイルの`scopes`を使用。
+- `bookmark --profile work login`  
+  `config.toml` の `[profile.work]` を使って認証・セッション保存を行う。
 - `bookmark logout`  
   keyring上のセッションを削除。
 - `bookmark whoami`  

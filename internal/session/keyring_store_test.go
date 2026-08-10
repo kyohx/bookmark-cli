@@ -34,7 +34,7 @@ func TestKeyringStoreSaveAndLoad(t *testing.T) {
 		return savedRaw, nil
 	}
 
-	store := NewKeyringStore("http://localhost:8000")
+	store := NewKeyringStore("default")
 	wantExpiry := time.Now().UTC().Truncate(time.Second)
 	err := store.Save(context.Background(), &oauth2.Token{
 		AccessToken:  "access",
@@ -44,6 +44,9 @@ func TestKeyringStoreSaveAndLoad(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatalf("Save() error = %v", err)
+	}
+	if savedUser != "session:default" {
+		t.Fatalf("saved user = %q, want %q", savedUser, "session:default")
 	}
 
 	got, err := store.Load(context.Background())
@@ -73,7 +76,7 @@ func TestKeyringStoreLoadNotFound(t *testing.T) {
 		return "", keyring.ErrNotFound
 	}
 
-	store := NewKeyringStore("http://localhost:8000")
+	store := NewKeyringStore("default")
 	_, err := store.Load(context.Background())
 	if !errors.Is(err, ErrNotFound) {
 		t.Fatalf("Load() error = %v, want ErrNotFound", err)
@@ -89,7 +92,7 @@ func TestKeyringStoreDelete(t *testing.T) {
 	keyringDelete = func(service, user string) error {
 		return keyring.ErrNotFound
 	}
-	store := NewKeyringStore("http://localhost:8000")
+	store := NewKeyringStore("default")
 	if err := store.Delete(context.Background()); err != nil {
 		t.Fatalf("Delete() with ErrNotFound should succeed, got %v", err)
 	}

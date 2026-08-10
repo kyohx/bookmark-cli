@@ -3,11 +3,11 @@ module bookmark-cli
 go 1.22.0
 
 require (
+	github.com/BurntSushi/toml v1.4.0
 	github.com/spf13/cobra v1.8.1
 	github.com/zalando/go-keyring v0.2.6
 	golang.org/x/oauth2 v0.22.0
 	golang.org/x/term v0.23.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
