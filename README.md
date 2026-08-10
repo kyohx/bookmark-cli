@@ -8,6 +8,7 @@
 - 認証: Username/Password ログイン + Refresh Token 更新
 - セッション保存: Keychain / Credential Manager / Secret Service
 - 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `add`, `update`, `delete`
+- バージョン確認: `version` / `--version`
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
 
 ## 必要要件
@@ -41,6 +42,8 @@ scopes:
 
 ```bash
 go run ./cmd/bookmark --help
+go run ./cmd/bookmark --version
+go run ./cmd/bookmark version
 ```
 
 ### ログイン / ログアウト

@@ -18,10 +18,12 @@ func newRootCmd() *cobra.Command {
 	opts := rootOptions{}
 
 	cmd := &cobra.Command{
-		Use:   "bookmark",
-		Short: "CLI for bookmark-sample WebAPI",
+		Use:     "bookmark",
+		Short:   "CLI for bookmark-sample WebAPI",
+		Version: version,
 	}
 	cmd.SilenceUsage = true
+	cmd.SetVersionTemplate("{{.Version}}\n")
 
 	defaultConfigPath, err := config.DefaultPath()
 	if err != nil {
@@ -41,5 +43,6 @@ func newRootCmd() *cobra.Command {
 	cmd.AddCommand(newBookmarkAddCmd(opts))
 	cmd.AddCommand(newBookmarkUpdateCmd(opts))
 	cmd.AddCommand(newBookmarkDeleteCmd(opts))
+	cmd.AddCommand(newVersionCmd())
 	return cmd
 }
