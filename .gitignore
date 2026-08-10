@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-bookmark
+/bookmark
 
 # Test binaries and coverage
 *.test
