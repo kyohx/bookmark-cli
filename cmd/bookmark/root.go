@@ -10,6 +10,7 @@ import (
 
 type rootOptions struct {
 	ConfigPath string
+	Profile    string
 	BaseURL    string
 	TimeoutSec int
 }
@@ -32,6 +33,7 @@ func newRootCmd() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVar(&opts.ConfigPath, "config", defaultConfigPath, "config file path")
+	cmd.PersistentFlags().StringVar(&opts.Profile, "profile", config.DefaultProfile, "profile name in config file")
 	cmd.PersistentFlags().StringVar(&opts.BaseURL, "base-url", "", "override API base URL")
 	cmd.PersistentFlags().IntVar(&opts.TimeoutSec, "timeout", 10, "HTTP timeout seconds")
 

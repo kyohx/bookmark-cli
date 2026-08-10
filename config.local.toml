@@ -1,0 +1,4 @@
+[profile.default]
+base_url = "http://localhost:8000"
+timeout_seconds = 30
+scopes = ["read", "write"]

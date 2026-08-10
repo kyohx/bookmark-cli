@@ -38,9 +38,9 @@ type storedToken struct {
 	Expiry       string `json:"expiry,omitempty"`
 }
 
-func NewKeyringStore(baseURL string) *KeyringStore {
+func NewKeyringStore(profileName string) *KeyringStore {
 	return &KeyringStore{
-		user: "session:" + baseURL,
+		user: "session:" + profileName,
 	}
 }
 

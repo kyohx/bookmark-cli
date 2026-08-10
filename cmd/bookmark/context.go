@@ -25,7 +25,17 @@ func loadDeps(opts rootOptions, withAPI bool) (*commandDeps, error) {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
-	baseURL := cfg.BaseURL
+	profileName := strings.TrimSpace(opts.Profile)
+	if profileName == "" {
+		profileName = config.DefaultProfile
+	}
+
+	profile, err := cfg.Profile(profileName)
+	if err != nil {
+		return nil, fmt.Errorf("load profile: %w", err)
+	}
+
+	baseURL := profile.BaseURL
 	if strings.TrimSpace(opts.BaseURL) != "" {
 		baseURL = strings.TrimSpace(opts.BaseURL)
 	}
@@ -33,19 +43,19 @@ func loadDeps(opts rootOptions, withAPI bool) (*commandDeps, error) {
 		return nil, fmt.Errorf("base URL is empty")
 	}
 
-	timeoutSec := cfg.TimeoutSeconds
+	timeoutSec := profile.TimeoutSeconds
 	if opts.TimeoutSec > 0 {
 		timeoutSec = opts.TimeoutSec
 	}
 	timeout := time.Duration(timeoutSec) * time.Second
 
-	store := session.NewKeyringStore(baseURL)
+	store := session.NewKeyringStore(profileName)
 	authSvc := auth.NewService(baseURL, timeout, store)
 
 	deps := &commandDeps{
 		BaseURL: baseURL,
 		Timeout: timeout,
-		Scopes:  cfg.Scopes,
+		Scopes:  profile.Scopes,
 		Auth:    authSvc,
 	}
 	if withAPI {

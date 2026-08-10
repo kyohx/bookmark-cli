@@ -2,21 +2,28 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/BurntSushi/toml"
 )
 
 const (
 	defaultBaseURL = "http://localhost:8000"
 	defaultTimeout = 10
+	DefaultProfile = "default"
 )
 
+type Profile struct {
+	BaseURL        string   `toml:"base_url"`
+	TimeoutSeconds int      `toml:"timeout_seconds"`
+	Scopes         []string `toml:"scopes"`
+}
+
 type Config struct {
-	BaseURL        string   `yaml:"base_url"`
-	TimeoutSeconds int      `yaml:"timeout_seconds"`
-	Scopes         []string `yaml:"scopes"`
+	Profiles map[string]Profile `toml:"profile"`
 }
 
 func DefaultPath() (string, error) {
@@ -24,35 +31,64 @@ func DefaultPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "bookmark-cli", "config.yaml"), nil
+	return filepath.Join(dir, "bookmark-cli", "config.toml"), nil
 }
 
 func Load(path string) (*Config, error) {
-	cfg := &Config{
-		BaseURL:        defaultBaseURL,
-		TimeoutSeconds: defaultTimeout,
-	}
+	cfg := &Config{}
 
 	if path == "" {
+		cfg.Profiles = map[string]Profile{DefaultProfile: defaultProfile()}
 		return cfg, nil
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
+			cfg.Profiles = map[string]Profile{DefaultProfile: defaultProfile()}
 			return cfg, nil
 		}
 		return nil, err
 	}
 
-	if err := yaml.Unmarshal(data, cfg); err != nil {
+	if _, err := toml.Decode(string(data), cfg); err != nil {
 		return nil, err
 	}
-	if cfg.BaseURL == "" {
-		cfg.BaseURL = defaultBaseURL
+	if len(cfg.Profiles) == 0 {
+		cfg.Profiles = map[string]Profile{DefaultProfile: defaultProfile()}
 	}
-	if cfg.TimeoutSeconds <= 0 {
-		cfg.TimeoutSeconds = defaultTimeout
+	for name, profile := range cfg.Profiles {
+		cfg.Profiles[name] = normalizeProfile(profile)
 	}
 	return cfg, nil
+}
+
+func (c *Config) Profile(name string) (Profile, error) {
+	profileName := strings.TrimSpace(name)
+	if profileName == "" {
+		profileName = DefaultProfile
+	}
+
+	profile, ok := c.Profiles[profileName]
+	if !ok {
+		return Profile{}, fmt.Errorf("profile %q not found", profileName)
+	}
+	return normalizeProfile(profile), nil
+}
+
+func defaultProfile() Profile {
+	return Profile{
+		BaseURL:        defaultBaseURL,
+		TimeoutSeconds: defaultTimeout,
+	}
+}
+
+func normalizeProfile(profile Profile) Profile {
+	if profile.BaseURL == "" {
+		profile.BaseURL = defaultBaseURL
+	}
+	if profile.TimeoutSeconds <= 0 {
+		profile.TimeoutSeconds = defaultTimeout
+	}
+	return profile
 }
