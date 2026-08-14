@@ -17,7 +17,7 @@ type authStatus struct {
 	Expired   bool   `json:"expired,omitempty"`
 }
 
-func newAuthCmd(opts rootOptions) *cobra.Command {
+func newAuthCmd(opts *rootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Auth-related commands",
@@ -26,7 +26,7 @@ func newAuthCmd(opts rootOptions) *cobra.Command {
 	return cmd
 }
 
-func newAuthStatusCmd(opts rootOptions) *cobra.Command {
+func newAuthStatusCmd(opts *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
 		Short: "Show local auth session status",

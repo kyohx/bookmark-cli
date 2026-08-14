@@ -14,7 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-func newLoginCmd(opts rootOptions) *cobra.Command {
+func newLoginCmd(opts *rootOptions) *cobra.Command {
 	var username string
 	var passwordStdin bool
 	var scopes []string
