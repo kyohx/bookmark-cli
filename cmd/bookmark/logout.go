@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newLogoutCmd(opts rootOptions) *cobra.Command {
+func newLogoutCmd(opts *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "logout",
 		Short: "Delete session from OS keychain",

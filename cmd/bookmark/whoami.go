@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newWhoamiCmd(opts rootOptions) *cobra.Command {
+func newWhoamiCmd(opts *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "whoami",
 		Short: "Show current logged-in user",

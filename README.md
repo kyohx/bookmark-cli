@@ -38,7 +38,7 @@ timeout_seconds = 15
 scopes = ["read"]
 ```
 
-`[profile.<プロファイル名>]` ごとにデフォルト設定を持てます。`--profile`, `--base-url`, `--timeout`, `--config` で上書きできます。セッションはプロファイル単位で OS キーチェーンに保存されます。
+`[profile.<プロファイル名>]` ごとにデフォルト設定を持てます。`--profile`, `--base-url`, `--timeout`, `--config` で上書きできます。`--show-profile` を付けると、起動時に実際に採用されるプロファイル内容を stderr に表示します。セッションはプロファイル単位で OS キーチェーンに保存されます。
 
 ## 使用方法
 
@@ -48,6 +48,7 @@ scopes = ["read"]
 go run ./cmd/bookmark --help
 go run ./cmd/bookmark --version
 go run ./cmd/bookmark version
+go run ./cmd/bookmark --profile work --show-profile version
 ```
 
 ### ログイン / ログアウト

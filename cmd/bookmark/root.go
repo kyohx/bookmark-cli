@@ -9,19 +9,25 @@ import (
 )
 
 type rootOptions struct {
-	ConfigPath string
-	Profile    string
-	BaseURL    string
-	TimeoutSec int
+	ConfigPath  string
+	Profile     string
+	BaseURL     string
+	TimeoutSec  int
+	TimeoutSet  bool
+	ShowProfile bool
 }
 
 func newRootCmd() *cobra.Command {
-	opts := rootOptions{}
+	opts := &rootOptions{}
 
 	cmd := &cobra.Command{
 		Use:     "bookmark",
 		Short:   "CLI for bookmark-sample WebAPI",
 		Version: version,
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			opts.TimeoutSet = cmd.Flags().Changed("timeout")
+			return maybePrintProfile(cmd, opts)
+		},
 	}
 	cmd.SilenceUsage = true
 	cmd.SetVersionTemplate("{{.Version}}\n")
@@ -36,6 +42,7 @@ func newRootCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVar(&opts.Profile, "profile", config.DefaultProfile, "profile name in config file")
 	cmd.PersistentFlags().StringVar(&opts.BaseURL, "base-url", "", "override API base URL")
 	cmd.PersistentFlags().IntVar(&opts.TimeoutSec, "timeout", 10, "HTTP timeout seconds")
+	cmd.PersistentFlags().BoolVar(&opts.ShowProfile, "show-profile", false, "print resolved profile to stderr before running the command")
 
 	cmd.AddCommand(newLoginCmd(opts))
 	cmd.AddCommand(newLogoutCmd(opts))

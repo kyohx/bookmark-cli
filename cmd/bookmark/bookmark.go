@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newBookmarkCmd(opts rootOptions) *cobra.Command {
+func newBookmarkCmd(opts *rootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bookmark",
 		Short: "Bookmark operations",
@@ -21,7 +21,7 @@ func newBookmarkCmd(opts rootOptions) *cobra.Command {
 	return cmd
 }
 
-func newBookmarkListCmd(opts rootOptions) *cobra.Command {
+func newBookmarkListCmd(opts *rootOptions) *cobra.Command {
 	var tags []string
 	var page int
 	var size int
@@ -47,7 +47,7 @@ func newBookmarkListCmd(opts rootOptions) *cobra.Command {
 	return cmd
 }
 
-func newBookmarkAddCmd(opts rootOptions) *cobra.Command {
+func newBookmarkAddCmd(opts *rootOptions) *cobra.Command {
 	var url string
 	var memo string
 	var tags []string
@@ -88,7 +88,7 @@ func newBookmarkAddCmd(opts rootOptions) *cobra.Command {
 	return cmd
 }
 
-func newBookmarkUpdateCmd(opts rootOptions) *cobra.Command {
+func newBookmarkUpdateCmd(opts *rootOptions) *cobra.Command {
 	var memo string
 	var tags []string
 
@@ -130,7 +130,7 @@ func newBookmarkUpdateCmd(opts rootOptions) *cobra.Command {
 	return cmd
 }
 
-func newBookmarkDeleteCmd(opts rootOptions) *cobra.Command {
+func newBookmarkDeleteCmd(opts *rootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <hashed_id>",
 		Short: "Delete a bookmark",
