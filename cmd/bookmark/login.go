@@ -29,13 +29,10 @@ func newLoginCmd(opts *rootOptions) *cobra.Command {
 			}
 
 			if strings.TrimSpace(username) == "" {
-				cli.PrintLine("Username:")
-				r := bufio.NewReader(os.Stdin)
-				line, err := r.ReadString('\n')
-				if err != nil && !errors.Is(err, io.EOF) {
-					return cli.WrapUserError("read username", err)
+				username, err = readUsername(os.Stdin, os.Stdout)
+				if err != nil {
+					return err
 				}
-				username = strings.TrimSpace(line)
 			}
 			if username == "" {
 				return fmt.Errorf("username is required")
@@ -64,6 +61,17 @@ func newLoginCmd(opts *rootOptions) *cobra.Command {
 	cmd.Flags().BoolVar(&passwordStdin, "password-stdin", false, "read password from stdin")
 	cmd.Flags().StringArrayVar(&scopes, "scope", nil, "requested OAuth scope (repeatable)")
 	return cmd
+}
+
+func readUsername(r io.Reader, w io.Writer) (string, error) {
+	fmt.Fprint(w, "Username: ")
+
+	reader := bufio.NewReader(r)
+	line, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", cli.WrapUserError("read username", err)
+	}
+	return strings.TrimSpace(line), nil
 }
 
 func readPassword(passwordStdin bool) ([]byte, error) {
