@@ -129,6 +129,49 @@ func TestRefreshIfPossible(t *testing.T) {
 	}
 }
 
+func TestLoginIncludesJSONErrorBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"detail":"invalid credentials"}`))
+	}))
+	defer server.Close()
+
+	svc := NewService(server.URL, 2*time.Second, &memStore{})
+	err := svc.Login(context.Background(), "testuser", []byte("wrong"), nil)
+	if err == nil {
+		t.Fatal("Login() error should not be nil")
+	}
+	if !strings.Contains(err.Error(), `status=401, body={"detail":"invalid credentials"}`) {
+		t.Fatalf("error should contain compact JSON body, got %v", err)
+	}
+}
+
+func TestRefreshIncludesJSONErrorBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"detail":"refresh token expired"}`))
+	}))
+	defer server.Close()
+
+	store := &memStore{
+		token: &oauth2.Token{
+			AccessToken:  "a1",
+			RefreshToken: "r1",
+			TokenType:    "bearer",
+		},
+	}
+	svc := NewService(server.URL, 2*time.Second, store)
+	err := svc.RefreshIfPossible(context.Background())
+	if err == nil {
+		t.Fatal("RefreshIfPossible() error should not be nil")
+	}
+	if !strings.Contains(err.Error(), `status=401, body={"detail":"refresh token expired"}`) {
+		t.Fatalf("error should contain compact JSON body, got %v", err)
+	}
+}
+
 func makeJWTWithExp(exp time.Time) string {
 	header := map[string]any{"alg": "none", "typ": "JWT"}
 	payload := map[string]any{"exp": exp.Unix()}

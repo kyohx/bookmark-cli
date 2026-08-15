@@ -10,6 +10,7 @@
 - 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `add`, `update`, `delete`
 - バージョン確認: `version` / `--version`
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
+- APIエラー: JSONレスポンスが返ればエラー本文も表示
 
 ## 必要要件
 
