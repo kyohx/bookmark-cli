@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"bookmark-cli/internal/auth"
+	"bookmark-cli/internal/cli"
 	"golang.org/x/oauth2"
 )
 
@@ -193,7 +194,11 @@ func (c *Client) doJSON(
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("api %s %s failed: status=%d", method, path, resp.StatusCode)
+		bodyBytes, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		if err != nil {
+			return fmt.Errorf("read error response: %w", err)
+		}
+		return cli.WrapHTTPError(fmt.Sprintf("api %s %s failed", method, path), resp.StatusCode, bodyBytes)
 	}
 
 	if out == nil {

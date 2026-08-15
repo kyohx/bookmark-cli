@@ -106,3 +106,27 @@ func TestClientStopsAfterSingleRetry(t *testing.T) {
 		t.Fatalf("request count = %d, want 2", got)
 	}
 }
+
+func TestClientIncludesJSONErrorBody(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"detail":"invalid tag","fields":["tag"]}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		baseURL:     server.URL,
+		httpClient:  &http.Client{Timeout: 2 * time.Second},
+		tokenSource: &fakeTokenSource{tokens: []*oauth2.Token{{AccessToken: "a1", TokenType: "Bearer"}}},
+		authService: &fakeAuthRefresher{},
+	}
+
+	_, err := client.ListBookmarks(context.Background(), []string{"bad"}, 1, 10)
+	if err == nil {
+		t.Fatal("ListBookmarks() error should not be nil")
+	}
+	if !strings.Contains(err.Error(), `status=400, body={"detail":"invalid tag","fields":["tag"]}`) {
+		t.Fatalf("error should contain compact JSON body, got %v", err)
+	}
+}

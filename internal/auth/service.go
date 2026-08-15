@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"bookmark-cli/internal/cli"
 	"bookmark-cli/internal/session"
 	"golang.org/x/oauth2"
 )
@@ -56,12 +57,12 @@ func (s *Service) Login(ctx context.Context, username string, password []byte, s
 	form.Set("password", string(password))
 	form.Set("scope", normalizeScopes(scopes))
 
-	out, status, _, err := s.loginWithPath(ctx, "/token", form)
+	out, status, body, err := s.loginWithPath(ctx, "/token", form)
 	if err != nil {
 		return err
 	}
 	if status != http.StatusOK {
-		return fmt.Errorf("login failed: status=%d", status)
+		return cli.WrapHTTPError("login failed", status, body)
 	}
 	return s.saveToken(ctx, out, "")
 }
@@ -117,12 +118,17 @@ func (s *Service) refresh(ctx context.Context, refreshToken string) error {
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
+	if err != nil {
+		return fmt.Errorf("read refresh response: %w", err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("refresh failed: status=%d", resp.StatusCode)
+		return cli.WrapHTTPError("refresh failed", resp.StatusCode, bodyBytes)
 	}
 
 	var out loginResponse
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	if err := json.Unmarshal(bodyBytes, &out); err != nil {
 		return fmt.Errorf("decode refresh response: %w", err)
 	}
 	return s.saveToken(ctx, out, refreshToken)
@@ -148,33 +154,33 @@ func (s *Service) saveToken(ctx context.Context, res loginResponse, fallbackRefr
 	return nil
 }
 
-func (s *Service) loginWithPath(ctx context.Context, path string, form url.Values) (loginResponse, int, string, error) {
+func (s *Service) loginWithPath(ctx context.Context, path string, form url.Values) (loginResponse, int, []byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.baseURL+path, strings.NewReader(form.Encode()))
 	if err != nil {
-		return loginResponse{}, 0, "", fmt.Errorf("build login request: %w", err)
+		return loginResponse{}, 0, nil, fmt.Errorf("build login request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return loginResponse{}, 0, "", fmt.Errorf("login request failed: %w", err)
+		return loginResponse{}, 0, nil, fmt.Errorf("login request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
 	if err != nil {
-		return loginResponse{}, 0, "", fmt.Errorf("read login response: %w", err)
+		return loginResponse{}, 0, nil, fmt.Errorf("read login response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return loginResponse{}, resp.StatusCode, string(bodyBytes), nil
+		return loginResponse{}, resp.StatusCode, bodyBytes, nil
 	}
 
 	var out loginResponse
 	if err := json.Unmarshal(bodyBytes, &out); err != nil {
-		return loginResponse{}, 0, "", fmt.Errorf("decode login response: %w", err)
+		return loginResponse{}, 0, nil, fmt.Errorf("decode login response: %w", err)
 	}
-	return out, resp.StatusCode, "", nil
+	return out, resp.StatusCode, nil, nil
 }
 
 func parseJWTExpiry(accessToken string) time.Time {
