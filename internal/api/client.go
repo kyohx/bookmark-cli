@@ -14,6 +14,7 @@ import (
 
 	"bookmark-cli/internal/auth"
 	"bookmark-cli/internal/cli"
+
 	"golang.org/x/oauth2"
 )
 
@@ -87,12 +88,8 @@ func (c *Client) ListBookmarks(ctx context.Context, tags []string, page, size in
 		}
 		q.Add("tag", tag)
 	}
-	if page > 0 {
-		q.Set("page", strconv.Itoa(page))
-	}
-	if size > 0 {
-		q.Set("size", strconv.Itoa(size))
-	}
+	q.Set("page", strconv.Itoa(page))
+	q.Set("size", strconv.Itoa(size))
 
 	var out listBookmarksResponse
 	if err := c.doJSON(ctx, http.MethodGet, "/bookmarks", q, nil, &out); err != nil {
