@@ -76,6 +76,35 @@ func TestClientRetriesOnceOn401(t *testing.T) {
 	}
 }
 
+func TestClientVersion(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			t.Fatalf("method = %q, want %q", r.Method, http.MethodGet)
+		}
+		if r.URL.Path != "/version" {
+			t.Fatalf("path = %q, want %q", r.URL.Path, "/version")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"version":"1.2.3"}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		baseURL:     server.URL,
+		httpClient:  &http.Client{Timeout: 2 * time.Second},
+		tokenSource: &fakeTokenSource{tokens: []*oauth2.Token{{AccessToken: "a1", TokenType: "Bearer"}}},
+		authService: &fakeAuthRefresher{},
+	}
+
+	info, err := client.Version(context.Background())
+	if err != nil {
+		t.Fatalf("Version() error = %v", err)
+	}
+	if info.Version != "1.2.3" {
+		t.Fatalf("version = %q, want %q", info.Version, "1.2.3")
+	}
+}
+
 func TestClientStopsAfterSingleRetry(t *testing.T) {
 	var reqCount int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

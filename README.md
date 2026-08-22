@@ -7,8 +7,8 @@
 
 - 認証: Username/Password ログイン + Refresh Token 更新
 - セッション保存: Keychain / Credential Manager / Secret Service
-- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `add`, `update`, `delete`
-- バージョン確認: `version` / `--version`
+- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `add`, `update`, `delete`, `api-version`
+- バージョン確認: `version` / `--version` / `api-version`
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
 - APIエラー: JSONレスポンスが返ればエラー本文も表示
 
@@ -49,6 +49,7 @@ scopes = ["read"]
 go run ./cmd/bookmark --help
 go run ./cmd/bookmark --version
 go run ./cmd/bookmark version
+go run ./cmd/bookmark api-version
 go run ./cmd/bookmark --profile work --show-profile version
 ```
 

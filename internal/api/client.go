@@ -34,6 +34,10 @@ type CurrentUser struct {
 	Authority int    `json:"authority"`
 }
 
+type VersionInfo struct {
+	Version string `json:"version"`
+}
+
 type Bookmark struct {
 	HashedID  string   `json:"hashed_id"`
 	URL       string   `json:"url"`
@@ -75,6 +79,14 @@ func NewClient(baseURL string, timeout time.Duration, authSvc *auth.Service) (*C
 func (c *Client) Me(ctx context.Context) (*CurrentUser, error) {
 	var out meResponse
 	if err := c.doJSON(ctx, http.MethodGet, "/me", nil, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) Version(ctx context.Context) (*VersionInfo, error) {
+	var out VersionInfo
+	if err := c.doJSON(ctx, http.MethodGet, "/version", nil, nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
