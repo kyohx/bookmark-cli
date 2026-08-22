@@ -1,5 +1,7 @@
 # bookmark-cli
 
+[![Test](https://github.com/kyohx/bookmark-cli/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kyohx/bookmark-cli/actions/workflows/test.yml)
+
 `bookmark-sample` WebAPI を操作する Go 製 CLI です。  
 `/token` で認証し、トークンは OS キーチェーンに保存します。
 
