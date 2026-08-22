@@ -115,6 +115,8 @@ type APIClient interface {
   keyring上のセッションを削除。
 - `bookmark whoami`  
   APIに問い合わせてログイン状態を表示。
+- `bookmark api-version`
+  APIに問い合わせてサーバーのバージョンを表示。
 - `bookmark auth status`  
   トークン有効期限・再認証要否を表示。
 - `bookmark list/add/update/delete ...`  
