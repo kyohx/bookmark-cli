@@ -9,10 +9,12 @@
 
 - 認証: Username/Password ログイン + Refresh Token 更新
 - セッション保存: Keychain / Credential Manager / Secret Service
-- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `add`, `update`, `delete`, `api-version`
+- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `get`, `add`, `update`, `delete`, `api-version`
 - バージョン確認: `version` / `--version` / `api-version`
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
 - APIエラー: JSONレスポンスが返ればエラー本文も表示
+
+対応仕様: [Bookmark API OpenAPI](https://github.com/kyohx/bookmark-sample/blob/ee30d5ad8eec01c30d7b51a6101bc14009efbbeb/openapi.json)（`0.12.0.260922`）。既存の認証・ブックマーク操作を対象とし、ユーザー管理・ブラックリスト管理のCLIは提供していません。
 
 ## 必要要件
 
@@ -87,7 +89,10 @@ go run ./cmd/bookmark whoami
 go run ./cmd/bookmark list --page 1 --size 10
 go run ./cmd/bookmark list --tag work --tag test
 
-# 追加
+# 単件取得
+go run ./cmd/bookmark get <hashed_id>
+
+# 追加（memoは省略すると空文字）
 go run ./cmd/bookmark add --url "https://example.com" --memo "sample" --tag work --tag test
 
 # 更新（memoのみ）
@@ -99,6 +104,10 @@ go run ./cmd/bookmark update <hashed_id> --tag private --tag test
 # 削除
 go run ./cmd/bookmark delete <hashed_id>
 ```
+
+`add` / `get` / `update` はブックマーク全体をJSONで出力します。`add` の出力は従来の `hashed_id` のみから全項目に、`update` は `Updated.` からJSONに変わります。
+
+入力制約: `page` は1以上、`size` は1〜100、IDは64桁の小文字16進数、URLは400文字以内の絶対URI、memoは空文字を許容し400文字以内、tagsは1〜10件（各1〜100文字）です。更新時に省略した項目は送信せず、`--memo ""` でメモを空にできます。
 
 ## ビルド方法
 

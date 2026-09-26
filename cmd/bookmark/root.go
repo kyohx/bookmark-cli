@@ -49,6 +49,7 @@ func newRootCmd() *cobra.Command {
 	cmd.AddCommand(newWhoamiCmd(opts))
 	cmd.AddCommand(newAuthCmd(opts))
 	cmd.AddCommand(newBookmarkListCmd(opts))
+	cmd.AddCommand(newBookmarkGetCmd(opts))
 	cmd.AddCommand(newBookmarkAddCmd(opts))
 	cmd.AddCommand(newBookmarkUpdateCmd(opts))
 	cmd.AddCommand(newBookmarkDeleteCmd(opts))
