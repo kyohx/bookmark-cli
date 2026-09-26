@@ -8,9 +8,11 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"bookmark-cli/internal/auth"
 	"bookmark-cli/internal/cli"
@@ -60,7 +62,7 @@ type listBookmarksResponse struct {
 type meResponse = CurrentUser
 
 type addBookmarkResponse struct {
-	HashedID string `json:"hashed_id"`
+	Bookmark Bookmark `json:"added_bookmark"`
 }
 
 func NewClient(baseURL string, timeout time.Duration, authSvc *auth.Service) (*Client, error) {
@@ -93,11 +95,16 @@ func (c *Client) Version(ctx context.Context) (*VersionInfo, error) {
 }
 
 func (c *Client) ListBookmarks(ctx context.Context, tags []string, page, size int) ([]Bookmark, error) {
+	if err := validatePagination(page, size); err != nil {
+		return nil, err
+	}
+	for _, tag := range tags {
+		if err := validateTag(tag); err != nil {
+			return nil, err
+		}
+	}
 	q := make(url.Values)
 	for _, tag := range tags {
-		if strings.TrimSpace(tag) == "" {
-			continue
-		}
 		q.Add("tag", tag)
 	}
 	q.Set("page", strconv.Itoa(page))
@@ -110,19 +117,36 @@ func (c *Client) ListBookmarks(ctx context.Context, tags []string, page, size in
 	return out.Bookmarks, nil
 }
 
-func (c *Client) AddBookmark(ctx context.Context, req AddBookmarkRequest) (string, error) {
+func (c *Client) AddBookmark(ctx context.Context, req AddBookmarkRequest) (*Bookmark, error) {
+	if err := validateAddBookmark(req); err != nil {
+		return nil, err
+	}
 	var out addBookmarkResponse
 	if err := c.doJSON(ctx, http.MethodPost, "/bookmarks", nil, req, &out); err != nil {
-		return "", err
+		return nil, err
 	}
-	return out.HashedID, nil
+	return &out.Bookmark, nil
 }
 
 func (c *Client) DeleteBookmark(ctx context.Context, hashedID string) error {
+	if err := validateHashedID(hashedID); err != nil {
+		return err
+	}
 	return c.doJSON(ctx, http.MethodDelete, "/bookmarks/"+hashedID, nil, nil, nil)
 }
 
-func (c *Client) UpdateBookmark(ctx context.Context, hashedID string, memo *string, tags []string, hasTags bool) error {
+func (c *Client) UpdateBookmark(ctx context.Context, hashedID string, memo *string, tags []string, hasTags bool) (*Bookmark, error) {
+	if err := validateHashedID(hashedID); err != nil {
+		return nil, err
+	}
+	if memo != nil && utf8.RuneCountInString(*memo) > 400 {
+		return nil, fmt.Errorf("memo must be at most 400 characters")
+	}
+	if hasTags {
+		if err := validateTags(tags); err != nil {
+			return nil, err
+		}
+	}
 	var req map[string]any
 	req = make(map[string]any)
 	if memo != nil {
@@ -131,7 +155,13 @@ func (c *Client) UpdateBookmark(ctx context.Context, hashedID string, memo *stri
 	if hasTags {
 		req["tags"] = tags
 	}
-	return c.doJSON(ctx, http.MethodPatch, "/bookmarks/"+hashedID, nil, req, nil)
+	var out struct {
+		Bookmark Bookmark `json:"updated_bookmark"`
+	}
+	if err := c.doJSON(ctx, http.MethodPatch, "/bookmarks/"+hashedID, nil, req, &out); err != nil {
+		return nil, err
+	}
+	return &out.Bookmark, nil
 }
 
 func (c *Client) doJSON(
@@ -217,4 +247,65 @@ func (c *Client) doJSON(
 		return fmt.Errorf("decode response: %w", err)
 	}
 	return nil
+}
+
+func (c *Client) GetBookmark(ctx context.Context, hashedID string) (*Bookmark, error) {
+	if err := validateHashedID(hashedID); err != nil {
+		return nil, err
+	}
+	var out struct {
+		Bookmark Bookmark `json:"bookmark"`
+	}
+	if err := c.doJSON(ctx, http.MethodGet, "/bookmarks/"+hashedID, nil, nil, &out); err != nil {
+		return nil, err
+	}
+	return &out.Bookmark, nil
+}
+
+func validatePagination(page, size int) error {
+	if page < 1 {
+		return fmt.Errorf("page must be at least 1")
+	}
+	if size < 1 || size > 100 {
+		return fmt.Errorf("size must be between 1 and 100")
+	}
+	return nil
+}
+
+func validateHashedID(id string) error {
+	if !regexp.MustCompile(`^[0-9a-f]{64}$`).MatchString(id) {
+		return fmt.Errorf("hashed_id must be 64 lowercase hexadecimal characters")
+	}
+	return nil
+}
+
+func validateTag(tag string) error {
+	n := utf8.RuneCountInString(tag)
+	if n < 1 || n > 100 {
+		return fmt.Errorf("each tag must contain 1 to 100 characters")
+	}
+	return nil
+}
+
+func validateTags(tags []string) error {
+	if len(tags) < 1 || len(tags) > 10 {
+		return fmt.Errorf("tags must contain 1 to 10 items")
+	}
+	for _, tag := range tags {
+		if err := validateTag(tag); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateAddBookmark(req AddBookmarkRequest) error {
+	u, err := url.Parse(req.URL)
+	if err != nil || u.Scheme == "" || utf8.RuneCountInString(req.URL) < 1 || utf8.RuneCountInString(req.URL) > 400 {
+		return fmt.Errorf("url must be an absolute URI of at most 400 characters")
+	}
+	if utf8.RuneCountInString(req.Memo) > 400 {
+		return fmt.Errorf("memo must be at most 400 characters")
+	}
+	return validateTags(req.Tags)
 }

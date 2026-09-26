@@ -1,0 +1,1676 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bookmark API",
+    "description": "API for bookmarking web page URL",
+    "version": "0.12.0.260922"
+  },
+  "paths": {
+    "/token": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "description": "ログインしてアクセストークンを取得する",
+        "operationId": "login_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForLogin"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh Token",
+        "description": "リフレッシュトークンからアクセストークンを再発行する",
+        "operationId": "refresh_token_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForRefreshToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForRefreshToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/blacklist/jti": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Add Blacklist Jti",
+        "description": "jtiをリフレッシュトークンブラックリストに追加する(管理者のみ)",
+        "operationId": "add_blacklist_jti_auth_blacklist_jti_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForBlacklistAddJti"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/blacklist/family": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Add Blacklist Family",
+        "description": "user+familyをリフレッシュトークンブラックリストに追加する(管理者のみ)",
+        "operationId": "add_blacklist_family_auth_blacklist_family_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForBlacklistAddFamily"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/blacklist/jti/{jti}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Blacklist Jti",
+        "description": "jtiのリフレッシュトークンブラックリストを削除する(管理者のみ)",
+        "operationId": "delete_blacklist_jti_auth_blacklist_jti__jti__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jti",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Jti"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/blacklist/family/{user}/{family}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Blacklist Family",
+        "description": "user+familyのリフレッシュトークンブラックリストを削除する(管理者のみ)",
+        "operationId": "delete_blacklist_family_auth_blacklist_family__user___family__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "title": "User"
+            }
+          },
+          {
+            "name": "family",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Family"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Me",
+        "description": "ログインユーザ情報を取得する",
+        "operationId": "me_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetCurrentUser"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/bookmarks": {
+      "post": {
+        "tags": [
+          "bookmark"
+        ],
+        "summary": "Add Bookmark",
+        "description": "ブックマーク追加",
+        "operationId": "add_bookmark_bookmarks_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForAddBookmark"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForAddBookmark"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "bookmark"
+        ],
+        "summary": "Get Bookmarks",
+        "description": "ブックマークリスト取得",
+        "operationId": "get_bookmarks_bookmarks_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetBookmarkList"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookmarks/{hashed_id}": {
+      "patch": {
+        "tags": [
+          "bookmark"
+        ],
+        "summary": "Update Bookmark",
+        "description": "ブックマーク更新",
+        "operationId": "update_bookmark_bookmarks__hashed_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hashed_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "[0-9a-f]+",
+              "title": "Hashed Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForUpdateBookmark"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForUpdateBookmark"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "bookmark"
+        ],
+        "summary": "Delete Bookmark",
+        "description": "ブックマーク削除",
+        "operationId": "delete_bookmark_bookmarks__hashed_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hashed_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "[0-9a-f]+",
+              "title": "Hashed Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForDeleteBookmark"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "bookmark"
+        ],
+        "summary": "Get Bookmark",
+        "description": "ブックマーク取得",
+        "operationId": "get_bookmark_bookmarks__hashed_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hashed_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "[0-9a-f]+",
+              "title": "Hashed Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetBookmark"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Add User",
+        "description": "ユーザー追加",
+        "operationId": "add_user_users_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForAddUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForAddUser"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get Users",
+        "description": "ユーザーリスト取得",
+        "operationId": "get_users_users_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetUserList"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{name}": {
+      "patch": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update User",
+        "description": "ユーザー更新\n - ログインユーザー自身のname,disabled,authorityは変更できない\n - 管理者以外はログインユーザー自身の情報のみ変更可能",
+        "operationId": "update_user_users__name__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "title": "Name"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForUpdateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForUpdateUser"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get User",
+        "description": "ユーザー取得",
+        "operationId": "get_user_users__name__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetUser"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "version"
+        ],
+        "summary": "Get Version",
+        "description": "バージョン番号取得",
+        "operationId": "get_version_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForGetVersion"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthorityEnum": {
+        "type": "integer",
+        "enum": [
+          0,
+          1,
+          2,
+          9
+        ],
+        "title": "AuthorityEnum",
+        "description": "権限\n[権限なし: 0]\n[読み取り可: 1]\n[読み書き可: 2]\n[管理者権限: 9]"
+      },
+      "Body_login_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_token_post"
+      },
+      "Bookmark": {
+        "properties": {
+          "hashed_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "[0-9a-f]+",
+            "title": "Hashed Id"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 400,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Url"
+          },
+          "memo": {
+            "type": "string",
+            "maxLength": 400,
+            "title": "Memo"
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 19,
+            "minLength": 19,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "title": "Created At",
+            "example": "2025-01-01 12:34:56"
+          },
+          "updated_at": {
+            "type": "string",
+            "maxLength": 19,
+            "minLength": 19,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "title": "Updated At",
+            "example": "2025-01-01 12:34:56"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hashed_id",
+          "url",
+          "memo",
+          "created_at",
+          "updated_at",
+          "tags"
+        ],
+        "title": "Bookmark"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "RequestForAddBookmark": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 400,
+            "minLength": 1,
+            "format": "uri",
+            "title": "Url"
+          },
+          "memo": {
+            "type": "string",
+            "maxLength": 400,
+            "title": "Memo"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "memo",
+          "tags"
+        ],
+        "title": "RequestForAddBookmark",
+        "examples": [
+          {
+            "memo": "サンプル",
+            "tags": [
+              "work",
+              "test"
+            ],
+            "url": "https://example.com"
+          }
+        ]
+      },
+      "RequestForAddUser": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "Name"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 8,
+            "format": "password",
+            "title": "Password",
+            "writeOnly": true
+          },
+          "authority": {
+            "$ref": "#/components/schemas/AuthorityEnum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "password",
+          "authority"
+        ],
+        "title": "RequestForAddUser",
+        "examples": [
+          {
+            "authority": 2,
+            "name": "test_user",
+            "password": "password"
+          }
+        ]
+      },
+      "RequestForBlacklistAddFamily": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "user": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "User"
+          },
+          "family": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Family"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "family"
+        ],
+        "title": "RequestForBlacklistAddFamily"
+      },
+      "RequestForBlacklistAddJti": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "jti": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Jti"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jti"
+        ],
+        "title": "RequestForBlacklistAddJti"
+      },
+      "RequestForRefreshToken": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RequestForRefreshToken",
+        "examples": [
+          {
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY"
+          }
+        ]
+      },
+      "RequestForUpdateBookmark": {
+        "properties": {
+          "memo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 400
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memo"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "minLength": 1
+                },
+                "type": "array",
+                "maxItems": 10,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "title": "RequestForUpdateBookmark",
+        "examples": [
+          {
+            "memo": "サンプル",
+            "tags": [
+              "private",
+              "test"
+            ]
+          }
+        ]
+      },
+      "RequestForUpdateUser": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32,
+                "minLength": 1,
+                "pattern": "^[a-zA-Z0-9_]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 8,
+                "format": "password",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuthorityEnum"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "disabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disabled"
+          }
+        },
+        "type": "object",
+        "title": "RequestForUpdateUser",
+        "examples": [
+          {
+            "authority": 2,
+            "disabled": false,
+            "name": "test_user",
+            "password": "password"
+          }
+        ]
+      },
+      "ResponseForAddBookmark": {
+        "properties": {
+          "added_bookmark": {
+            "$ref": "#/components/schemas/Bookmark"
+          }
+        },
+        "type": "object",
+        "required": [
+          "added_bookmark"
+        ],
+        "title": "ResponseForAddBookmark",
+        "examples": [
+          {
+            "added_bookmark": {
+              "created_at": "2025-01-01 12:34:56",
+              "hashed_id": "123456789012345678901234567890123456789012345678901234567890abcd",
+              "memo": "サンプル",
+              "tags": [
+                "work",
+                "test"
+              ],
+              "updated_at": "2025-01-02 09:45:01",
+              "url": "https://example.com"
+            }
+          }
+        ]
+      },
+      "ResponseForAddUser": {
+        "properties": {
+          "added_user": {
+            "$ref": "#/components/schemas/UserDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "added_user"
+        ],
+        "title": "ResponseForAddUser",
+        "examples": [
+          {
+            "added_user": {
+              "authority": 2,
+              "created_at": "2025-01-01 12:34:56",
+              "disabled": false,
+              "name": "test_user",
+              "updated_at": "2025-01-02 09:45:01"
+            }
+          }
+        ]
+      },
+      "ResponseForDeleteBookmark": {
+        "properties": {},
+        "type": "object",
+        "title": "ResponseForDeleteBookmark"
+      },
+      "ResponseForGetBookmark": {
+        "properties": {
+          "bookmark": {
+            "$ref": "#/components/schemas/Bookmark"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bookmark"
+        ],
+        "title": "ResponseForGetBookmark",
+        "examples": [
+          {
+            "bookmark": {
+              "created_at": "2025-01-01 12:34:56",
+              "hashed_id": "123456789012345678901234567890123456789012345678901234567890abcd",
+              "memo": "サンプル",
+              "tags": [
+                "private",
+                "test"
+              ],
+              "updated_at": "2025-01-02 09:45:01",
+              "url": "https://example.com"
+            }
+          }
+        ]
+      },
+      "ResponseForGetBookmarkList": {
+        "properties": {
+          "bookmarks": {
+            "items": {
+              "$ref": "#/components/schemas/Bookmark"
+            },
+            "type": "array",
+            "title": "Bookmarks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bookmarks"
+        ],
+        "title": "ResponseForGetBookmarkList",
+        "examples": [
+          {
+            "bookmarks": [
+              {
+                "created_at": "2025-01-01 12:34:56",
+                "hashed_id": "123456789012345678901234567890123456789012345678901234567890abcd",
+                "memo": "サンプル",
+                "tags": [
+                  "private",
+                  "test"
+                ],
+                "updated_at": "2025-01-02 09:45:01",
+                "url": "https://example.com"
+              }
+            ]
+          }
+        ]
+      },
+      "ResponseForGetCurrentUser": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "Name"
+          },
+          "authority": {
+            "$ref": "#/components/schemas/AuthorityEnum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "authority"
+        ],
+        "title": "ResponseForGetCurrentUser",
+        "examples": [
+          {
+            "authority": 2,
+            "name": "test_user"
+          }
+        ]
+      },
+      "ResponseForGetUser": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user"
+        ],
+        "title": "ResponseForGetUser",
+        "examples": [
+          {
+            "user": {
+              "authority": 2,
+              "created_at": "2025-01-01 12:34:56",
+              "disabled": false,
+              "name": "test_user",
+              "updated_at": "2025-01-02 09:45:01"
+            }
+          }
+        ]
+      },
+      "ResponseForGetUserList": {
+        "properties": {
+          "users": {
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            },
+            "type": "array",
+            "title": "Users"
+          }
+        },
+        "type": "object",
+        "required": [
+          "users"
+        ],
+        "title": "ResponseForGetUserList",
+        "examples": [
+          {
+            "users": [
+              {
+                "authority": 2,
+                "created_at": "2025-01-01 12:34:56",
+                "disabled": false,
+                "name": "test_user",
+                "updated_at": "2025-01-02 09:45:01"
+              }
+            ]
+          }
+        ]
+      },
+      "ResponseForGetVersion": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "title": "ResponseForGetVersion",
+        "examples": [
+          {
+            "version": "0.12.0.260922"
+          }
+        ]
+      },
+      "ResponseForLogin": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "token_type"
+        ],
+        "title": "ResponseForLogin",
+        "examples": [
+          {
+            "access_token": "XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX",
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY",
+            "token_type": "bearer"
+          }
+        ]
+      },
+      "ResponseForRefreshToken": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "token_type"
+        ],
+        "title": "ResponseForRefreshToken",
+        "examples": [
+          {
+            "access_token": "XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX",
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY",
+            "token_type": "bearer"
+          }
+        ]
+      },
+      "ResponseForUpdateBookmark": {
+        "properties": {
+          "updated_bookmark": {
+            "$ref": "#/components/schemas/Bookmark"
+          }
+        },
+        "type": "object",
+        "required": [
+          "updated_bookmark"
+        ],
+        "title": "ResponseForUpdateBookmark",
+        "examples": [
+          {
+            "updated_bookmark": {
+              "created_at": "2025-01-01 12:34:56",
+              "hashed_id": "123456789012345678901234567890123456789012345678901234567890abcd",
+              "memo": "サンプル",
+              "tags": [
+                "private",
+                "test"
+              ],
+              "updated_at": "2025-01-02 09:45:01",
+              "url": "https://example.com"
+            }
+          }
+        ]
+      },
+      "ResponseForUpdateUser": {
+        "properties": {
+          "updated_user": {
+            "$ref": "#/components/schemas/UserDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "updated_user"
+        ],
+        "title": "ResponseForUpdateUser",
+        "examples": [
+          {
+            "updated_user": {
+              "authority": 2,
+              "created_at": "2025-01-01 12:34:56",
+              "disabled": false,
+              "name": "test_user",
+              "updated_at": "2025-01-02 09:45:01"
+            }
+          }
+        ]
+      },
+      "UserDetail": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "Name"
+          },
+          "authority": {
+            "$ref": "#/components/schemas/AuthorityEnum"
+          },
+          "disabled": {
+            "type": "boolean",
+            "title": "Disabled"
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 19,
+            "minLength": 19,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "title": "Created At",
+            "example": "2025-01-01 12:34:56"
+          },
+          "updated_at": {
+            "type": "string",
+            "maxLength": 19,
+            "minLength": 19,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+            "title": "Updated At",
+            "example": "2025-01-01 12:34:56"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "authority",
+          "disabled",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "UserDetail"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "token"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication operations"
+    },
+    {
+      "name": "bookmark",
+      "description": "Bookmark operations"
+    },
+    {
+      "name": "user",
+      "description": "User operations"
+    },
+    {
+      "name": "version",
+      "description": "API version"
+    }
+  ]
+}

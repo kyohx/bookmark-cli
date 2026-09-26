@@ -17,6 +17,8 @@ func newBookmarkCmd(opts *rootOptions) *cobra.Command {
 	}
 	cmd.AddCommand(newBookmarkListCmd(opts))
 	cmd.AddCommand(newBookmarkAddCmd(opts))
+	cmd.AddCommand(newBookmarkGetCmd(opts))
+	cmd.AddCommand(newBookmarkUpdateCmd(opts))
 	cmd.AddCommand(newBookmarkDeleteCmd(opts))
 	return cmd
 }
@@ -63,14 +65,11 @@ func newBookmarkAddCmd(opts *rootOptions) *cobra.Command {
 			if strings.TrimSpace(url) == "" {
 				return fmt.Errorf("url is required")
 			}
-			if strings.TrimSpace(memo) == "" {
-				return fmt.Errorf("memo is required")
-			}
 			if len(tags) == 0 {
 				return fmt.Errorf("at least one tag is required")
 			}
 
-			hashedID, err := deps.API.AddBookmark(context.Background(), api.AddBookmarkRequest{
+			bookmark, err := deps.API.AddBookmark(context.Background(), api.AddBookmarkRequest{
 				URL:  url,
 				Memo: memo,
 				Tags: tags,
@@ -78,7 +77,7 @@ func newBookmarkAddCmd(opts *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return cli.PrintJSON(map[string]string{"hashed_id": hashedID})
+			return cli.PrintJSON(bookmark)
 		},
 	}
 
@@ -104,7 +103,7 @@ func newBookmarkUpdateCmd(opts *rootOptions) *cobra.Command {
 
 			var memoPtr *string
 			if cmd.Flags().Changed("memo") {
-				m := strings.TrimSpace(memo)
+				m := memo
 				memoPtr = &m
 			}
 
@@ -117,11 +116,11 @@ func newBookmarkUpdateCmd(opts *rootOptions) *cobra.Command {
 				return fmt.Errorf("specify at least one field to update: --memo or --tag")
 			}
 
-			if err := deps.API.UpdateBookmark(context.Background(), args[0], memoPtr, tags, hasTags); err != nil {
+			bookmark, err := deps.API.UpdateBookmark(context.Background(), args[0], memoPtr, tags, hasTags)
+			if err != nil {
 				return err
 			}
-			cli.PrintLine("Updated.")
-			return nil
+			return cli.PrintJSON(bookmark)
 		},
 	}
 
@@ -148,4 +147,21 @@ func newBookmarkDeleteCmd(opts *rootOptions) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func newBookmarkGetCmd(opts *rootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use: "get <hashed_id>", Short: "Get a bookmark", Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			deps, err := loadDeps(opts, true)
+			if err != nil {
+				return err
+			}
+			bookmark, err := deps.API.GetBookmark(context.Background(), args[0])
+			if err != nil {
+				return err
+			}
+			return cli.PrintJSON(bookmark)
+		},
+	}
 }
