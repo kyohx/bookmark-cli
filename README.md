@@ -9,12 +9,12 @@
 
 - 認証: Username/Password ログイン + Refresh Token 更新
 - セッション保存: Keychain / Credential Manager / Secret Service
-- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `get`, `add`, `update`, `delete`, `api-version`
+- 主なコマンド: `login`, `logout`, `whoami`, `auth status`, `list`, `get`, `add`, `update`, `delete`, `user add/get/list/update`, `api-version`
 - バージョン確認: `version` / `--version` / `api-version`
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
 - APIエラー: JSONレスポンスが返ればエラー本文も表示
 
-対応仕様: [Bookmark API OpenAPI](https://github.com/kyohx/bookmark-sample/blob/ee30d5ad8eec01c30d7b51a6101bc14009efbbeb/openapi.json)（`0.12.0.260922`）。既存の認証・ブックマーク操作を対象とし、ユーザー管理・ブラックリスト管理のCLIは提供していません。
+対応仕様: [Bookmark API OpenAPI](https://github.com/kyohx/bookmark-sample/blob/ee30d5ad8eec01c30d7b51a6101bc14009efbbeb/openapi.json)（`0.12.0.260922`）。認証・ブックマーク操作とユーザーの追加・取得・一覧・更新に対応しています。
 
 ## 必要要件
 
@@ -108,6 +108,26 @@ go run ./cmd/bookmark delete <hashed_id>
 `add` / `get` / `update` はブックマーク全体をJSONで出力します。`add` の出力は従来の `hashed_id` のみから全項目に、`update` は `Updated.` からJSONに変わります。
 
 入力制約: `page` は1以上、`size` は1〜100、IDは64桁の小文字16進数、URLは400文字以内の絶対URI、memoは空文字を許容し400文字以内、tagsは1〜10件（各1〜100文字）です。更新時に省略した項目は送信せず、`--memo ""` でメモを空にできます。
+
+### ユーザー操作
+
+```bash
+# 追加（管理者権限が必要）
+go run ./cmd/bookmark user add test_user --authority 2
+printf '%s\n' 'new-password' | go run ./cmd/bookmark user add test_user --authority 2 --password-stdin
+
+# 単件取得・一覧（どちらも管理者権限が必要）
+go run ./cmd/bookmark user get test_user
+go run ./cmd/bookmark user list --page 1 --size 10
+
+# 更新（指定した項目だけ送信）
+go run ./cmd/bookmark user update test_user --authority 1 --disabled=false
+go run ./cmd/bookmark user update test_user --name new_name
+go run ./cmd/bookmark user update test_user --password
+printf '%s\n' 'new-password' | go run ./cmd/bookmark user update test_user --password-stdin
+```
+
+パスワードは通常、画面に表示せず入力します。`--password-stdin` は標準入力から読み取ります。`--authority` は 0（権限なし）、1（読み取り）、2（読み書き）、9（管理者）のいずれかを指定します。ユーザー名は英数字とアンダースコアで1〜32文字、パスワードは8〜64文字です。`user update` では `--disabled=false` も明示的に送信できます。API の仕様上、自分自身の名前・権限・無効化状態は変更できず、管理者以外は自分の情報のみ更新できます。現行 API にユーザー削除はありません。
 
 ## ビルド方法
 
