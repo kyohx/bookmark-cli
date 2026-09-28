@@ -116,7 +116,7 @@ go run ./cmd/bookmark delete <hashed_id>
 go run ./cmd/bookmark user add test_user --authority 2
 printf '%s\n' 'new-password' | go run ./cmd/bookmark user add test_user --authority 2 --password-stdin
 
-# 単件取得・一覧
+# 単件取得・一覧（どちらも管理者権限が必要）
 go run ./cmd/bookmark user get test_user
 go run ./cmd/bookmark user list --page 1 --size 10
 
