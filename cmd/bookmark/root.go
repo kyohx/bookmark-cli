@@ -53,6 +53,7 @@ func newRootCmd() *cobra.Command {
 	cmd.AddCommand(newBookmarkAddCmd(opts))
 	cmd.AddCommand(newBookmarkUpdateCmd(opts))
 	cmd.AddCommand(newBookmarkDeleteCmd(opts))
+	cmd.AddCommand(newUserCmd(opts))
 	cmd.AddCommand(newAPIVersionCmd(opts))
 	cmd.AddCommand(newVersionCmd())
 	return cmd
