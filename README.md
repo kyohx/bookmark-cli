@@ -14,7 +14,9 @@
 - セキュリティ方針: パスワード非保存、401時の単回リトライ、HTTPタイムアウト適用
 - APIエラー: JSONレスポンスが返ればエラー本文も表示
 
-対応仕様: [Bookmark API OpenAPI](https://github.com/kyohx/bookmark-sample/blob/13aa099234193b7525ccbfc1a63b9c5ab2eda5ea/openapi.json)（`0.13.0.261003`）。認証・ブックマーク操作、ユーザーの追加・取得・一覧・更新、ユーザーのリフレッシュセッションの一覧・失効に対応しています。
+対応仕様: [Bookmark API OpenAPI](https://github.com/kyohx/bookmark-sample/blob/11a47fb8c16672cb69f29e4f5fd2cdc2684b8792/openapi.json)（`0.14.0.261010`）。認証・ブックマーク操作、ユーザーの追加・取得・一覧・更新、ユーザーのリフレッシュセッションの一覧・失効に対応しています。
+
+API `0.14.0.261010` 以降、ブックマーク・ユーザーの `created_at` / `updated_at` と、セッションの `created_at` / `last_used_at` / `expires_at` は、タイムゾーン付き・秒精度のISO 8601形式です（例: `2025-01-01T12:34:56+09:00`、セッション日時はUTCの `+00:00`）。CLIはAPIから受け取った日時文字列をそのままJSONに出力し、タイムゾーン変換や再整形を行いません。CLI出力を利用するスクリプトで従来の `YYYY-MM-DD HH:MM:SS` をパースしている場合は、新形式への対応が必要です。ローカル認証情報の有効期限と `auth status` の `expires_at` は、従来どおりJWTの `exp` に基づくUTCのRFC 3339形式です。
 
 ## 必要要件
 

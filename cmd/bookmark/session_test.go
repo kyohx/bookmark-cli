@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -24,7 +26,7 @@ func TestSessionCommands(t *testing.T) {
 		args                                          []string
 		status                                        int
 	}{
-		{name: "list", method: "GET", path: "/users/test_user/sessions", args: []string{"session", "list", "test_user"}, status: 200, response: `{"sessions":[{"id":"session1","created_at":"2026-10-01 12:34:56","last_used_at":"2026-10-02 12:34:56","expires_at":"2026-10-08 12:34:56","revoked":false,"user_agent":null}]}`, want: `"user_agent": null`},
+		{name: "list", method: "GET", path: "/users/test_user/sessions", args: []string{"session", "list", "test_user"}, status: 200, response: `{"sessions":[{"id":"session1","created_at":"2026-10-01T12:34:56+00:00","last_used_at":"2026-10-02T12:34:56+00:00","expires_at":"2026-10-08T12:34:56+00:00","revoked":false,"user_agent":null}]}`, want: `"user_agent": null`},
 		{name: "empty list", method: "GET", path: "/users/test_user/sessions", args: []string{"session", "list", "test_user"}, status: 200, response: `{"sessions":[]}`, want: "[]\n"},
 		{name: "revoke", method: "DELETE", path: "/users/test_user/sessions/session1", args: []string{"session", "revoke", "test_user", "session1"}, status: 204, want: "Revoked.\n"},
 		{name: "list forbidden", method: "GET", path: "/users/test_user/sessions", args: []string{"session", "list", "test_user"}, status: 403, response: `{"detail":"admin only"}`, wantError: `status=403, body={"detail":"admin only"}`},
@@ -60,6 +62,22 @@ func TestSessionCommands(t *testing.T) {
 				}
 			} else if err != nil || !strings.Contains(out.String(), tc.want) {
 				t.Fatalf("output = %q, error = %v, want %q", out.String(), err, tc.want)
+			}
+			if tc.method == http.MethodGet && tc.status == http.StatusOK {
+				var expected map[string]json.RawMessage
+				if err := json.Unmarshal([]byte(tc.response), &expected); err != nil {
+					t.Fatal(err)
+				}
+				var got, want any
+				if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+					t.Fatal(err)
+				}
+				if err := json.Unmarshal(expected["sessions"], &want); err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, want) {
+					t.Errorf("session JSON = %s, want %s", out.String(), expected["sessions"])
+				}
 			}
 			if requests != 1 {
 				t.Errorf("requests = %d, want 1", requests)
