@@ -30,7 +30,7 @@ func TestListUserSessions(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, response := range []string{
-		`{"sessions":[{"id":"session1","created_at":"2026-10-01 12:34:56","last_used_at":"2026-10-02 12:34:56","expires_at":"2026-10-08 12:34:56","revoked":false,"user_agent":null},{"id":"session2","created_at":"2026-10-02 12:34:56","last_used_at":"2026-10-03 12:34:56","expires_at":"2026-10-09 12:34:56","revoked":true,"user_agent":"bookmark-cli"}]}`,
+		`{"sessions":[{"id":"session1","created_at":"2026-10-01T12:34:56+00:00","last_used_at":"2026-10-02T12:34:56+00:00","expires_at":"2026-10-08T12:34:56+00:00","revoked":false,"user_agent":null},{"id":"session2","created_at":"2026-10-02T12:34:56Z","last_used_at":"2026-10-03T12:34:56-04:00","expires_at":"2026-10-09T12:34:56+09:00","revoked":true,"user_agent":"bookmark-cli"}]}`,
 		`{"sessions":[]}`,
 	} {
 		t.Run(response, func(t *testing.T) {

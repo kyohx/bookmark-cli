@@ -159,7 +159,7 @@ func TestBookmarkUpdateTagsAndDelete(t *testing.T) {
 			if !reflect.DeepEqual(body["tags"], []any{"private", "test"}) {
 				t.Errorf("unexpected tags: %v", body)
 			}
-			_, _ = w.Write([]byte(`{"updated_bookmark":{"hashed_id":"` + id + `","url":"https://example.com","memo":"","tags":["private","test"],"created_at":"2025-01-01 12:34:56","updated_at":"2025-01-02 09:45:01"}}`))
+			_, _ = w.Write([]byte(`{"updated_bookmark":{"hashed_id":"` + id + `","url":"https://example.com","memo":"","tags":["private","test"],"created_at":"2025-01-01T12:34:56+09:00","updated_at":"2025-01-02T09:45:01+09:00"}}`))
 		case http.MethodDelete:
 			_, _ = w.Write([]byte(`{}`))
 		default:
